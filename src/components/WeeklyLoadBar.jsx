@@ -9,7 +9,7 @@ export default function WeeklyLoadBar({ events }) {
   const grandTotal = totals.reduce((s, t) => s + t.hours, 0) || 1
 
   return (
-    <div className="bg-white border-2 border-[var(--color-ink)] rounded-none px-5 py-4">
+    <div className="bg-white pixel-panel px-5 py-4">
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="font-[var(--font-display)] font-semibold text-sm tracking-wide text-[var(--color-ink)]">
           CARGA DE LA SEMANA

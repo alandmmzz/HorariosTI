@@ -47,7 +47,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleSubmit}
-        className="bg-[var(--color-cream)] border-2 border-[var(--color-ink)] rounded-none w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
+        className="bg-[var(--color-cream)] pixel-panel w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
       >
         <h2 className="font-[var(--font-display)] font-semibold text-lg mb-4">
           {isEditing ? 'Editar' : 'Nueva'} actividad
@@ -173,7 +173,8 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-none text-sm bg-[var(--color-ink)] text-white font-medium border-2 border-[var(--color-ink)] shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="pixel-panel-head px-4 py-2 text-sm bg-[var(--color-ink)] text-white font-medium shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              style={{ '--notch': '6px' }}
             >
               Guardar
             </button>

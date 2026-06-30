@@ -44,6 +44,27 @@ body {
   outline-offset: 2px;
 }
 
+.pixel-panel {
+  --notch: 10px;
+  border: 3px solid var(--color-ink);
+  box-shadow: inset 0 0 0 3px var(--color-cream);
+  clip-path: polygon(
+    var(--notch) 0, calc(100% - var(--notch)) 0,
+    100% var(--notch), 100% calc(100% - var(--notch)),
+    calc(100% - var(--notch)) 100%, var(--notch) 100%,
+    0 calc(100% - var(--notch)), 0 var(--notch)
+  );
+}
+
+.pixel-panel-head {
+  --notch: 10px;
+  clip-path: polygon(
+    var(--notch) 0, calc(100% - var(--notch)) 0,
+    100% var(--notch), 100% 100%,
+    0 100%, 0 var(--notch)
+  );
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;

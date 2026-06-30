@@ -110,7 +110,8 @@ export default function App() {
           </label>
           <button
             onClick={() => setModalState({ initial: null })}
-            className="px-4 py-2 rounded-none text-sm bg-[var(--color-ink)] text-white font-medium border-2 border-[var(--color-ink)] shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            className="pixel-panel-head px-4 py-2 text-sm bg-[var(--color-ink)] text-white font-medium shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            style={{ '--notch': '6px' }}
           >
             + Nueva actividad
           </button>

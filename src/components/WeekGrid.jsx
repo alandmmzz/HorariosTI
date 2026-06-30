@@ -7,7 +7,7 @@ export default function WeekGrid({ events, visibleDays, onEventClick, onSlotClic
   for (let h = GRID_START_HOUR; h <= GRID_END_HOUR; h++) hours.push(h)
 
   return (
-    <div className="bg-white border-2 border-[var(--color-ink)] rounded-none overflow-hidden">
+    <div className="bg-white pixel-panel overflow-hidden">
       <div
         className="grid"
         style={{ gridTemplateColumns: `72px repeat(${visibleDays.length}, 1fr)` }}
@@ -28,10 +28,12 @@ export default function WeekGrid({ events, visibleDays, onEventClick, onSlotClic
         style={{ gridTemplateColumns: `72px repeat(${visibleDays.length}, 1fr)` }}
       >
         <div className="relative" style={{ height: hours.length * HOUR_HEIGHT }}>
-          {hours.map((h) => (
+          {hours.map((h, i) => (
             <div
               key={h}
-              className="absolute left-0 right-0 -translate-y-1/2 text-right pr-2 text-[11px] font-[var(--font-mono)] text-[var(--color-ink-soft)]"
+              className={`absolute left-0 right-0 pr-2 text-right text-[11px] font-[var(--font-mono)] text-[var(--color-ink-soft)] ${
+                i === 0 ? 'pt-1' : '-translate-y-1/2'
+              }`}
               style={{ top: (h - GRID_START_HOUR) * HOUR_HEIGHT }}
             >
               {formatHourLabel(h)}
