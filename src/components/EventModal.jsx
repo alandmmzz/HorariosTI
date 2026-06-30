@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { CATEGORIES, CATEGORY_ORDER, DAYS } from '../lib/categories'
 import { ICONS, ICON_ORDER, getIcon } from '../lib/icons'
 import { COLOR_PALETTE, COLOR_ORDER } from '../lib/colors'
+import { AREAS } from '../lib/curriculum'
 
 const EMPTY = {
   title: '',
@@ -41,8 +42,16 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
     setForm((f) => ({ ...f, [field]: value }))
   }
 
+  const allSubjectNames = AREAS.flatMap((a) => a.subjects.map((s) => s.name))
+
   function updateType(key) {
-    setForm((f) => ({ ...f, type: key, icon: CATEGORIES[key].defaultIcon, color: CATEGORIES[key].defaultColor }))
+    setForm((f) => {
+      const next = { ...f, type: key, icon: CATEGORIES[key].defaultIcon, color: CATEGORIES[key].defaultColor }
+      if (key === 'clase' && !allSubjectNames.includes(f.title)) {
+        next.title = ''
+      }
+      return next
+    })
   }
 
   function toggleDay(key) {
@@ -61,7 +70,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
   function handleSubmit(e) {
     e.preventDefault()
     if (!form.title.trim()) {
-      setError('Ponele un nombre a la materia o actividad.')
+      setError(form.type === 'clase' ? 'Elegí una materia.' : 'Ponele un nombre a la actividad.')
       return
     }
     if (form.days.length === 0) {
@@ -90,17 +99,6 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
         </h2>
 
         <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
-          Nombre
-        </label>
-        <input
-          autoFocus
-          value={form.title}
-          onChange={(e) => update('title', e.target.value)}
-          placeholder="Ej: Base de Datos 1, Gimnasio, Trabajo"
-          className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm focus-visible:outline-2"
-        />
-
-        <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
           Tipo
         </label>
         <div className="grid grid-cols-2 gap-2 mb-3">
@@ -123,6 +121,45 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
             )
           })}
         </div>
+
+        {form.type === 'clase' ? (
+          <>
+            <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
+              Materia
+            </label>
+            <select
+              value={form.title}
+              onChange={(e) => update('title', e.target.value)}
+              className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm"
+            >
+              <option value="" disabled>
+                Elegí una materia del plan
+              </option>
+              {AREAS.map((area) => (
+                <optgroup key={area.key} label={area.name}>
+                  {area.subjects.map((subject) => (
+                    <option key={subject.key} value={subject.name}>
+                      {subject.name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </>
+        ) : (
+          <>
+            <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
+              Nombre
+            </label>
+            <input
+              autoFocus
+              value={form.title}
+              onChange={(e) => update('title', e.target.value)}
+              placeholder="Ej: Gimnasio, Trabajo, Inglés conversacional"
+              className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm focus-visible:outline-2"
+            />
+          </>
+        )}
 
         <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
           Icono
