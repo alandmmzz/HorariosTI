@@ -113,20 +113,11 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto">
+    <div className="min-h-screen px-3 py-3 md:px-6 md:py-4 max-w-7xl mx-auto">
       <BannerSlot />
 
-      <div className="mb-6">
-        <p className="font-[var(--font-mono)] text-xs tracking-widest text-[var(--color-ink-soft)] mb-1">
-          TECNÓLOGO EN INFORMÁTICA · BUCEO
-        </p>
-        <h1 className="font-[var(--font-display)] font-bold text-3xl md:text-4xl text-[var(--color-ink)]">
-          Horarios TI
-        </h1>
-      </div>
-
       {!isSupabaseConfigured && (
-        <div className="mb-5 px-4 py-3 bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm">
+        <div className="mb-3 px-4 py-2 bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm">
           Todavía no conectaste Supabase: por ahora tus horarios se guardan solo en este navegador.
           Configurá las variables <code className="font-[var(--font-mono)]">VITE_SUPABASE_URL</code> y{' '}
           <code className="font-[var(--font-mono)]">VITE_SUPABASE_ANON_KEY</code> para guardarlos en la nube.
@@ -134,7 +125,7 @@ export default function App() {
       )}
 
       {isSupabaseConfigured && !authLoading && !user && !hintDismissed && (
-        <div className="mb-5 px-4 py-3 bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm flex items-start justify-between gap-3">
+        <div className="mb-3 px-4 py-2 bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm flex items-start justify-between gap-3">
           <span>
             Podés usar la app sin conectarte, pero tus datos solo se guardan en este navegador.
             Conectate con Google (panel de la izquierda) para guardarlos en la nube y no perderlos.
@@ -149,37 +140,36 @@ export default function App() {
       )}
 
       {errorMsg && (
-        <div className="mb-5 px-4 py-3 bg-[var(--color-lab-soft)] border border-[var(--color-lab)] text-sm">
+        <div className="mb-3 px-4 py-2 bg-[var(--color-lab-soft)] border border-[var(--color-lab)] text-sm">
           {errorMsg}
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-5">
+      <div className="flex flex-col md:flex-row gap-4">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex-1 min-w-0">
           {activeTab === 'horario' ? (
             <>
-              <div className="flex flex-wrap items-center justify-end gap-3 mb-4">
-                <label className="flex items-center gap-2 text-xs text-[var(--color-ink-soft)] cursor-pointer select-none">
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <div className="flex-1 min-w-0">
+                  <WeeklyLoadBar events={events} />
+                </div>
+                <label className="flex items-center gap-2 text-xs text-[var(--color-ink-soft)] cursor-pointer select-none shrink-0">
                   <input
                     type="checkbox"
                     checked={showWeekend}
                     onChange={(e) => setShowWeekend(e.target.checked)}
                   />
-                  Mostrar fin de semana
+                  Finde
                 </label>
                 <button
                   onClick={() => setModalState({ initial: null })}
-                  className="pixel-panel-head px-4 py-2 text-sm bg-[var(--color-ink)] text-white font-medium shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                  className="pixel-panel-head px-4 py-2 text-sm bg-[var(--color-ink)] text-white font-medium shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all shrink-0"
                   style={{ '--notch': '6px' }}
                 >
                   + Nueva actividad
                 </button>
-              </div>
-
-              <div className="mb-5">
-                <WeeklyLoadBar events={events} />
               </div>
 
               {loading ? (
@@ -208,10 +198,6 @@ export default function App() {
                   }}
                 />
               )}
-
-              <p className="text-xs text-[var(--color-ink-soft)] mt-4">
-                Tip: hacé clic en cualquier casillero vacío para crear una actividad en ese día y horario.
-              </p>
             </>
           ) : (
             <CareerProgress events={events} />

@@ -9,45 +9,35 @@ export default function WeeklyLoadBar({ events }) {
   const grandTotal = totals.reduce((s, t) => s + t.hours, 0) || 1
 
   return (
-    <div className="bg-white pixel-panel px-5 py-4">
-      <div className="flex items-baseline justify-between mb-3">
-        <h2 className="font-[var(--font-display)] font-semibold text-sm tracking-wide text-[var(--color-ink)]">
-          CARGA DE LA SEMANA
-        </h2>
-        <span className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)]">
-          {grandTotal.toFixed(1)} hs totales
-        </span>
-      </div>
+    <div className="pixel-panel bg-white px-3 py-2 flex items-center gap-3">
+      <span className="font-[var(--font-display)] font-semibold text-[11px] tracking-wide text-[var(--color-ink)] shrink-0">
+        CARGA
+      </span>
 
-      <div className="flex h-3 w-full rounded-none overflow-hidden bg-[var(--color-cream-soft)]">
+      <div className="flex h-2.5 flex-1 min-w-[60px] rounded-full overflow-hidden bg-[var(--color-cream-soft)]">
         {totals.map(({ key, hours }) =>
           hours > 0 ? (
             <div
               key={key}
-              style={{
-                width: `${(hours / grandTotal) * 100}%`,
-                background: CATEGORIES[key].color,
-              }}
+              style={{ width: `${(hours / grandTotal) * 100}%`, background: CATEGORIES[key].color }}
               title={`${CATEGORIES[key].label}: ${hours.toFixed(1)} hs`}
             />
           ) : null
         )}
       </div>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
+      <div className="hidden lg:flex flex-wrap gap-x-3 shrink-0">
         {totals.map(({ key, hours }) => (
-          <div key={key} className="flex items-center gap-1.5 text-xs text-[var(--color-ink-soft)]">
-            <span
-              className="w-2.5 h-2.5 rounded-none inline-block"
-              style={{ background: CATEGORIES[key].color }}
-            />
-            <span>{CATEGORIES[key].label}</span>
-            <span className="font-[var(--font-mono)] text-[var(--color-ink)]">
-              {hours.toFixed(1)}h
-            </span>
-          </div>
+          <span key={key} className="flex items-center gap-1 text-[11px] text-[var(--color-ink-soft)]">
+            <span className="w-2 h-2 inline-block" style={{ background: CATEGORIES[key].color }} />
+            {hours.toFixed(1)}h
+          </span>
         ))}
       </div>
+
+      <span className="font-[var(--font-mono)] text-[11px] text-[var(--color-ink-soft)] shrink-0">
+        {grandTotal.toFixed(1)}h
+      </span>
     </div>
   )
 }
