@@ -1,11 +1,15 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase, isSupabaseConfigured } from './lib/supabaseClient'
+import { useAuth } from './lib/AuthContext'
 import { DAYS } from './lib/categories'
+import Sidebar from './components/Sidebar'
 import WeekGrid from './components/WeekGrid'
 import WeeklyLoadBar from './components/WeeklyLoadBar'
 import EventModal from './components/EventModal'
+import CareerProgress from './components/CareerProgress'
 
 const LOCAL_KEY = 'horarios-ti-events'
+const DISMISS_KEY = 'horarios-ti-login-hint-dismissed'
 const WEEKDAYS = DAYS.filter((d) => !['sat', 'sun'].includes(d.key))
 
 function loadLocal() {
@@ -21,20 +25,27 @@ function saveLocal(events) {
 }
 
 export default function App() {
+  const { user, authLoading } = useAuth() ?? {}
+  const cloudReady = isSupabaseConfigured && Boolean(user)
+
+  const [activeTab, setActiveTab] = useState('horario')
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [showWeekend, setShowWeekend] = useState(false)
-  const [modalState, setModalState] = useState(null) // { initial } | null
+  const [modalState, setModalState] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
+  const [hintDismissed, setHintDismissed] = useState(() => localStorage.getItem(DISMISS_KEY) === '1')
 
   const visibleDays = showWeekend ? DAYS : WEEKDAYS
 
   const fetchEvents = useCallback(async () => {
+    if (authLoading) return
     setLoading(true)
-    if (isSupabaseConfigured) {
+    if (cloudReady) {
       const { data, error } = await supabase
         .from('events')
         .select('*')
+        .eq('user_id', user.id)
         .order('start_time', { ascending: true })
       if (error) {
         setErrorMsg('No se pudo conectar con Supabase. Revisá tu configuración.')
@@ -46,16 +57,21 @@ export default function App() {
       setEvents(loadLocal())
     }
     setLoading(false)
-  }, [])
+  }, [cloudReady, user, authLoading])
 
   useEffect(() => {
     fetchEvents()
   }, [fetchEvents])
 
+  function dismissHint() {
+    localStorage.setItem(DISMISS_KEY, '1')
+    setHintDismissed(true)
+  }
+
   async function handleSave(form) {
     const { days, day_of_week, ...rest } = form
 
-    if (isSupabaseConfigured) {
+    if (cloudReady) {
       if (form.id) {
         const { error } = await supabase
           .from('events')
@@ -63,7 +79,7 @@ export default function App() {
           .eq('id', form.id)
         if (error) return setErrorMsg(error.message)
       } else {
-        const rows = days.map((day) => ({ ...rest, day_of_week: day }))
+        const rows = days.map((day) => ({ ...rest, day_of_week: day, user_id: user.id }))
         const { error } = await supabase.from('events').insert(rows)
         if (error) return setErrorMsg(error.message)
       }
@@ -83,7 +99,7 @@ export default function App() {
   }
 
   async function handleDelete(id) {
-    if (isSupabaseConfigured) {
+    if (cloudReady) {
       const { error } = await supabase.from('events').delete().eq('id', id)
       if (error) return setErrorMsg(error.message)
       await fetchEvents()
@@ -96,73 +112,109 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 md:px-8 md:py-8 max-w-6xl mx-auto">
-      <header className="flex flex-wrap items-end justify-between gap-4 mb-6">
-        <div>
-          <p className="font-[var(--font-mono)] text-xs tracking-widest text-[var(--color-ink-soft)] mb-1">
-            TECNÓLOGO EN INFORMÁTICA · BUCEO
-          </p>
-          <h1 className="font-[var(--font-display)] font-bold text-3xl md:text-4xl text-[var(--color-ink)]">
-            Horarios TI
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-[var(--color-ink-soft)] cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={showWeekend}
-              onChange={(e) => setShowWeekend(e.target.checked)}
-            />
-            Mostrar fin de semana
-          </label>
-          <button
-            onClick={() => setModalState({ initial: null })}
-            className="pixel-panel-head px-4 py-2 text-sm bg-[var(--color-ink)] text-white font-medium shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-            style={{ '--notch': '6px' }}
-          >
-            + Nueva actividad
-          </button>
-        </div>
-      </header>
+    <div className="min-h-screen px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto">
+      <div className="mb-6">
+        <p className="font-[var(--font-mono)] text-xs tracking-widest text-[var(--color-ink-soft)] mb-1">
+          TECNÓLOGO EN INFORMÁTICA · BUCEO
+        </p>
+        <h1 className="font-[var(--font-display)] font-bold text-3xl md:text-4xl text-[var(--color-ink)]">
+          Horarios TI
+        </h1>
+      </div>
 
       {!isSupabaseConfigured && (
-        <div className="mb-5 px-4 py-3 rounded-none bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm">
+        <div className="mb-5 px-4 py-3 bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm">
           Todavía no conectaste Supabase: por ahora tus horarios se guardan solo en este navegador.
           Configurá las variables <code className="font-[var(--font-mono)]">VITE_SUPABASE_URL</code> y{' '}
           <code className="font-[var(--font-mono)]">VITE_SUPABASE_ANON_KEY</code> para guardarlos en la nube.
         </div>
       )}
 
+      {isSupabaseConfigured && !authLoading && !user && !hintDismissed && (
+        <div className="mb-5 px-4 py-3 bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm flex items-start justify-between gap-3">
+          <span>
+            Podés usar la app sin conectarte, pero tus datos solo se guardan en este navegador.
+            Conectate con Google (panel de la izquierda) para guardarlos en la nube y no perderlos.
+          </span>
+          <button
+            onClick={dismissHint}
+            className="shrink-0 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] text-xs underline"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
+
       {errorMsg && (
-        <div className="mb-5 px-4 py-3 rounded-none bg-[var(--color-lab-soft)] border border-[var(--color-lab)] text-sm">
+        <div className="mb-5 px-4 py-3 bg-[var(--color-lab-soft)] border border-[var(--color-lab)] text-sm">
           {errorMsg}
         </div>
       )}
 
-      <div className="mb-5">
-        <WeeklyLoadBar events={events} />
+      <div className="flex flex-col md:flex-row gap-5">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <div className="flex-1 min-w-0">
+          {activeTab === 'horario' ? (
+            <>
+              <div className="flex flex-wrap items-center justify-end gap-3 mb-4">
+                <label className="flex items-center gap-2 text-xs text-[var(--color-ink-soft)] cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={showWeekend}
+                    onChange={(e) => setShowWeekend(e.target.checked)}
+                  />
+                  Mostrar fin de semana
+                </label>
+                <button
+                  onClick={() => setModalState({ initial: null })}
+                  className="pixel-panel-head px-4 py-2 text-sm bg-[var(--color-ink)] text-white font-medium shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                  style={{ '--notch': '6px' }}
+                >
+                  + Nueva actividad
+                </button>
+              </div>
+
+              <div className="mb-5">
+                <WeeklyLoadBar events={events} />
+              </div>
+
+              {loading ? (
+                <p className="text-sm text-[var(--color-ink-soft)]">Cargando horarios…</p>
+              ) : (
+                <WeekGrid
+                  events={events}
+                  visibleDays={visibleDays}
+                  onEventClick={(event) => setModalState({ initial: event })}
+                  onSlotClick={(dayKey, hour) => {
+                    const start = `${String(hour).padStart(2, '0')}:00`
+                    const end = `${String(hour + 1).padStart(2, '0')}:00`
+                    setModalState({
+                      initial: {
+                        days: [dayKey],
+                        start_time: start,
+                        end_time: end,
+                        type: 'clase',
+                        icon: 'book-open',
+                        color: 'clase',
+                        title: '',
+                        location: '',
+                        professor: '',
+                      },
+                    })
+                  }}
+                />
+              )}
+
+              <p className="text-xs text-[var(--color-ink-soft)] mt-4">
+                Tip: hacé clic en cualquier casillero vacío para crear una actividad en ese día y horario.
+              </p>
+            </>
+          ) : (
+            <CareerProgress />
+          )}
+        </div>
       </div>
-
-      {loading ? (
-        <p className="text-sm text-[var(--color-ink-soft)]">Cargando horarios…</p>
-      ) : (
-        <WeekGrid
-          events={events}
-          visibleDays={visibleDays}
-          onEventClick={(event) => setModalState({ initial: event })}
-          onSlotClick={(dayKey, hour) => {
-            const start = `${String(hour).padStart(2, '0')}:00`
-            const end = `${String(hour + 1).padStart(2, '0')}:00`
-            setModalState({
-              initial: { days: [dayKey], start_time: start, end_time: end, type: 'clase', icon: 'book-open', color: 'clase', title: '', location: '', professor: '' },
-            })
-          }}
-        />
-      )}
-
-      <p className="text-xs text-[var(--color-ink-soft)] mt-4">
-        Tip: hacé clic en cualquier casillero vacío para crear una actividad en ese día y horario.
-      </p>
 
       {modalState && (
         <EventModal
