@@ -23,6 +23,8 @@ import { Clock } from 'pixelarticons/react/Clock.js'
 import { Notebook } from 'pixelarticons/react/Notebook.js'
 import { Bookmark } from 'pixelarticons/react/Bookmark.js'
 
+import { MapPin } from 'pixelarticons/react/MapPin.js'
+
 export const ICONS = {
   'book-open': { label: 'Libro', Icon: BookOpen },
   terminal: { label: 'Terminal', Icon: Terminal },
@@ -55,3 +57,5 @@ export const ICON_ORDER = Object.keys(ICONS)
 export function getIcon(key) {
   return ICONS[key]?.Icon ?? ICONS['book-open'].Icon
 }
+
+export { MapPin }

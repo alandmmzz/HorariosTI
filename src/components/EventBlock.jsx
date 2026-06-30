@@ -1,9 +1,11 @@
 import { CATEGORIES } from '../lib/categories'
-import { getIcon } from '../lib/icons'
+import { getIcon, MapPin } from '../lib/icons'
+import { getColor } from '../lib/colors'
 import { HOUR_HEIGHT, minutesFromGridStart, durationMinutes, formatTimeRange } from '../lib/time'
 
 export default function EventBlock({ event, onClick }) {
   const cat = CATEGORIES[event.type] ?? CATEGORIES.clase
+  const swatch = getColor(event.color ?? cat.defaultColor)
   const Icon = getIcon(event.icon ?? cat.defaultIcon)
   const top = (minutesFromGridStart(event.start_time) / 60) * HOUR_HEIGHT
   const height = (durationMinutes(event.start_time, event.end_time) / 60) * HOUR_HEIGHT
@@ -16,8 +18,8 @@ export default function EventBlock({ event, onClick }) {
         '--notch': '5px',
         top: `${top}px`,
         height: `${Math.max(height, 30)}px`,
-        background: cat.soft,
-        borderColor: cat.color,
+        background: swatch.soft,
+        borderColor: swatch.color,
       }}
     >
       <div className="flex items-center gap-1.5">
@@ -30,8 +32,9 @@ export default function EventBlock({ event, onClick }) {
         {formatTimeRange(event.start_time, event.end_time)}
       </p>
       {height > 56 && event.location && (
-        <p className="text-[11px] text-[var(--color-ink-soft)] truncate mt-0.5">
-          📍 {event.location}
+        <p className="flex items-center gap-1 text-[11px] text-[var(--color-ink-soft)] truncate mt-0.5">
+          <MapPin width={11} height={11} className="shrink-0" />
+          {event.location}
         </p>
       )}
       {height > 76 && event.professor && (

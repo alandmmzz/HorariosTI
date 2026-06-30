@@ -147,14 +147,14 @@ export default function App() {
             const start = `${String(hour).padStart(2, '0')}:00`
             const end = `${String(hour + 1).padStart(2, '0')}:00`
             setModalState({
-              initial: { day_of_week: dayKey, start_time: start, end_time: end, type: 'clase', icon: 'book-open', title: '', location: '', professor: '' },
+              initial: { day_of_week: dayKey, start_time: start, end_time: end, type: 'clase', icon: 'book-open', color: 'clase', title: '', location: '', professor: '' },
             })
           }}
         />
       )}
 
       <p className="text-xs text-[var(--color-ink-soft)] mt-4">
-        Tip: doble clic en cualquier casillero vacío para crear una actividad en ese día y horario.
+        Tip: hacé clic en cualquier casillero vacío para crear una actividad en ese día y horario.
       </p>
 
       {modalState && (

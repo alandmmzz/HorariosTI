@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { CATEGORIES, CATEGORY_ORDER, DAYS } from '../lib/categories'
 import { ICONS, ICON_ORDER, getIcon } from '../lib/icons'
+import { COLOR_PALETTE, COLOR_ORDER, getColor } from '../lib/colors'
 
 const EMPTY = {
   title: '',
   type: 'clase',
   icon: CATEGORIES.clase.defaultIcon,
+  color: CATEGORIES.clase.defaultColor,
   day_of_week: 'mon',
   start_time: '08:00',
   end_time: '09:00',
@@ -19,7 +21,12 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
 
   useEffect(() => {
     const next = initial ?? EMPTY
-    setForm(next.icon ? next : { ...next, icon: CATEGORIES[next.type]?.defaultIcon ?? 'book-open' })
+    const fallbackCat = CATEGORIES[next.type] ?? CATEGORIES.clase
+    setForm({
+      ...next,
+      icon: next.icon ?? fallbackCat.defaultIcon,
+      color: next.color ?? fallbackCat.defaultColor,
+    })
     setError('')
   }, [initial])
 
@@ -28,7 +35,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
   }
 
   function updateType(key) {
-    setForm((f) => ({ ...f, type: key, icon: CATEGORIES[key].defaultIcon }))
+    setForm((f) => ({ ...f, type: key, icon: CATEGORIES[key].defaultIcon, color: CATEGORIES[key].defaultColor }))
   }
 
   function handleSubmit(e) {
@@ -116,6 +123,30 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
               >
                 <Icon width={16} height={16} />
               </button>
+            )
+          })}
+        </div>
+
+        <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
+          Color
+        </label>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {COLOR_ORDER.map((key) => {
+            const { color, label } = COLOR_PALETTE[key]
+            const selected = form.color === key
+            return (
+              <button
+                type="button"
+                key={key}
+                title={label}
+                onClick={() => update('color', key)}
+                className="w-7 h-7 border-2 transition-transform"
+                style={{
+                  background: color,
+                  borderColor: selected ? 'var(--color-ink)' : 'transparent',
+                  transform: selected ? 'scale(1.12)' : 'scale(1)',
+                }}
+              />
             )
           })}
         </div>
