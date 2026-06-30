@@ -27,9 +27,20 @@ function saveLocal(set) {
   localStorage.setItem(LOCAL_KEY, JSON.stringify([...set]))
 }
 
-function SubjectRow({ subject, completed, unlocked, onToggle }) {
+function SubjectRow({ subject, completed, unlocked, cursando, onToggle }) {
   const checked = completed.has(subject.key)
   const hint = unlocked ? undefined : `Necesitás: ${missingRequirements(subject, completed).join(', ')}`
+
+  let bg = 'white'
+  let borderColor = 'var(--color-ink)'
+  if (checked) {
+    bg = 'var(--color-deporte)'
+  } else if (!unlocked) {
+    bg = 'var(--color-cream-soft)'
+    borderColor = 'var(--color-line)'
+  } else if (cursando) {
+    bg = 'var(--color-trabajo)'
+  }
 
   return (
     <li className="flex items-center gap-2">
@@ -39,14 +50,12 @@ function SubjectRow({ subject, completed, unlocked, onToggle }) {
         onClick={() => onToggle(subject.key)}
         title={hint}
         className="w-5 h-5 shrink-0 border-2 flex items-center justify-center disabled:cursor-not-allowed"
-        style={{
-          borderColor: unlocked ? 'var(--color-ink)' : 'var(--color-line)',
-          background: checked ? 'var(--color-deporte)' : unlocked ? 'white' : 'var(--color-cream-soft)',
-        }}
+        style={{ borderColor, background: bg }}
         aria-pressed={checked}
         aria-label={`Marcar ${subject.name} como completada`}
       >
         {checked && <span className="text-white text-xs leading-none">✓</span>}
+        {!checked && cursando && unlocked && <span className="text-white text-[9px] leading-none">●</span>}
         {!unlocked && !checked && <Lock width={11} height={11} className="text-[var(--color-ink-soft)]" />}
       </button>
 
@@ -61,6 +70,10 @@ function SubjectRow({ subject, completed, unlocked, onToggle }) {
         {subject.name}
       </span>
 
+      {cursando && !checked && (
+        <span className="text-[10px] font-medium text-[var(--color-trabajo)] shrink-0">cursando</span>
+      )}
+
       <span className="ml-auto font-[var(--font-mono)] text-[10px] text-[var(--color-ink-soft)] shrink-0">
         {subject.credits} cr
       </span>
@@ -68,7 +81,7 @@ function SubjectRow({ subject, completed, unlocked, onToggle }) {
   )
 }
 
-function GroupCard({ group, completed, onToggle }) {
+function GroupCard({ group, completed, cursandoNames, onToggle }) {
   const groupCredits = areaCreditsCompleted(group, completed)
   return (
     <div className="pixel-panel bg-white px-5 py-4">
@@ -95,7 +108,8 @@ function GroupCard({ group, completed, onToggle }) {
             key={subject.key}
             subject={subject}
             completed={completed}
-            unlocked={isUnlocked(subject, completed)}
+            unlocked={isUnlocked(subject, completed) || cursandoNames.has(subject.name)}
+            cursando={cursandoNames.has(subject.name)}
             onToggle={onToggle}
           />
         ))}
@@ -104,11 +118,15 @@ function GroupCard({ group, completed, onToggle }) {
   )
 }
 
-export default function CareerProgress() {
+export default function CareerProgress({ events = [] }) {
   const { user } = useAuth() ?? {}
   const [completed, setCompleted] = useState(new Set())
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState(() => localStorage.getItem(VIEW_KEY) ?? 'area')
+
+  const cursandoNames = new Set(
+    events.filter((e) => e.type === 'clase').map((e) => e.title?.trim()).filter(Boolean)
+  )
 
   function changeView(next) {
     setView(next)
@@ -184,6 +202,10 @@ export default function CareerProgress() {
             Disponible
           </span>
           <span className="flex items-center gap-1">
+            <span className="w-3 h-3 inline-block border-2 border-[var(--color-ink)] bg-[var(--color-trabajo)]" />
+            Cursando
+          </span>
+          <span className="flex items-center gap-1">
             <span className="w-3 h-3 inline-block border-2 border-[var(--color-ink)] bg-[var(--color-deporte)]" />
             Completada
           </span>
@@ -221,7 +243,7 @@ export default function CareerProgress() {
         <p className="text-sm text-[var(--color-ink-soft)]">Cargando avance…</p>
       ) : (
         groups.map((group) => (
-          <GroupCard key={group.key} group={group} completed={completed} onToggle={toggleSubject} />
+          <GroupCard key={group.key} group={group} completed={completed} cursandoNames={cursandoNames} onToggle={toggleSubject} />
         ))
       )}
     </div>

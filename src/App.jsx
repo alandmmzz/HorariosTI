@@ -211,7 +211,7 @@ export default function App() {
               </p>
             </>
           ) : (
-            <CareerProgress />
+            <CareerProgress events={events} />
           )}
         </div>
       </div>
