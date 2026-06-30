@@ -4,6 +4,7 @@ import { useAuth } from '../lib/AuthContext'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 import {
   AREAS,
+  SEMESTER_VIEW,
   TOTAL_DEGREE_CREDITS,
   isUnlocked,
   missingRequirements,
@@ -12,6 +13,7 @@ import {
 } from '../lib/curriculum'
 
 const LOCAL_KEY = 'horarios-ti-completed-subjects'
+const VIEW_KEY = 'horarios-ti-career-view'
 
 function loadLocal() {
   try {
@@ -66,10 +68,52 @@ function SubjectRow({ subject, completed, unlocked, onToggle }) {
   )
 }
 
+function GroupCard({ group, completed, onToggle }) {
+  const groupCredits = areaCreditsCompleted(group, completed)
+  return (
+    <div className="pixel-panel bg-white px-5 py-4">
+      <div className="flex items-baseline justify-between mb-1">
+        <h3 className="font-[var(--font-display)] font-semibold text-sm text-[var(--color-ink)]">
+          {(group.name ?? group.label).toUpperCase()}
+        </h3>
+        <span className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)]">
+          {group.minCredits ? `${groupCredits} / ${group.minCredits} cr mín.` : `${groupCredits} cr`}
+        </span>
+      </div>
+      {group.minCredits && (
+        <div className="h-1.5 w-full bg-[var(--color-cream-soft)] mb-3 overflow-hidden">
+          <div
+            className="h-full bg-[var(--color-trabajo)]"
+            style={{ width: `${Math.min(100, (groupCredits / group.minCredits) * 100)}%` }}
+          />
+        </div>
+      )}
+      {!group.minCredits && <div className="mb-3" />}
+      <ul className="space-y-1.5">
+        {group.subjects.map((subject) => (
+          <SubjectRow
+            key={subject.key}
+            subject={subject}
+            completed={completed}
+            unlocked={isUnlocked(subject, completed)}
+            onToggle={onToggle}
+          />
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export default function CareerProgress() {
   const { user } = useAuth() ?? {}
   const [completed, setCompleted] = useState(new Set())
   const [loading, setLoading] = useState(true)
+  const [view, setView] = useState(() => localStorage.getItem(VIEW_KEY) ?? 'area')
+
+  function changeView(next) {
+    setView(next)
+    localStorage.setItem(VIEW_KEY, next)
+  }
 
   const fetchCompleted = useCallback(async () => {
     setLoading(true)
@@ -89,31 +133,35 @@ export default function CareerProgress() {
     fetchCompleted()
   }, [fetchCompleted])
 
+  // Actualización optimista: cambia el estado al instante y recién después
+  // sincroniza con Supabase en segundo plano, sin volver a mostrar "Cargando…".
   async function toggleSubject(key) {
-    const isCompleted = completed.has(key)
+    const wasCompleted = completed.has(key)
+    const next = new Set(completed)
+    wasCompleted ? next.delete(key) : next.add(key)
+    setCompleted(next)
 
     if (isSupabaseConfigured && user) {
-      if (isCompleted) {
-        await supabase.from('completed_subjects').delete().eq('user_id', user.id).eq('subject_key', key)
-      } else {
-        await supabase.from('completed_subjects').insert({ user_id: user.id, subject_key: key })
+      const { error } = wasCompleted
+        ? await supabase.from('completed_subjects').delete().eq('user_id', user.id).eq('subject_key', key)
+        : await supabase.from('completed_subjects').insert({ user_id: user.id, subject_key: key })
+      if (error) {
+        // Si falló en el servidor, revertimos el cambio optimista.
+        setCompleted(completed)
       }
-      await fetchCompleted()
     } else {
-      const next = new Set(completed)
-      isCompleted ? next.delete(key) : next.add(key)
-      setCompleted(next)
       saveLocal(next)
     }
   }
 
   const totalCredits = creditsCompleted(completed)
   const percent = Math.min(100, Math.round((totalCredits / TOTAL_DEGREE_CREDITS) * 100))
+  const groups = view === 'area' ? AREAS : SEMESTER_VIEW
 
   return (
     <div className="space-y-5">
       <div className="pixel-panel bg-white px-5 py-4">
-        <div className="flex items-baseline justify-between mb-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
           <h2 className="font-[var(--font-display)] font-semibold text-sm tracking-wide text-[var(--color-ink)]">
             AVANCE DE LA CARRERA
           </h2>
@@ -125,6 +173,7 @@ export default function CareerProgress() {
           <div className="h-full bg-[var(--color-deporte)] transition-all" style={{ width: `${percent}%` }} />
         </div>
         <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mt-1">{percent}%</p>
+
         <div className="flex flex-wrap items-center gap-4 mt-2 text-[11px] text-[var(--color-ink-soft)]">
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 inline-block border-2 border-[var(--color-line)] bg-[var(--color-cream-soft)]" />
@@ -139,6 +188,28 @@ export default function CareerProgress() {
             Completada
           </span>
         </div>
+
+        <div className="flex gap-2 mt-3">
+          {[
+            { key: 'area', label: 'Por área' },
+            { key: 'semestre', label: 'Por semestre' },
+          ].map((opt) => (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => changeView(opt.key)}
+              className="px-3 py-1.5 text-xs font-medium border-2 transition-colors"
+              style={{
+                borderColor: view === opt.key ? 'var(--color-ink)' : 'var(--color-line)',
+                background: view === opt.key ? 'var(--color-ink)' : 'white',
+                color: view === opt.key ? 'white' : 'var(--color-ink)',
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
         {!user && (
           <p className="text-xs text-[var(--color-ink-soft)] mt-2">
             Estás viendo esto sin conectar tu cuenta: se guarda solo en este navegador.
@@ -149,38 +220,9 @@ export default function CareerProgress() {
       {loading ? (
         <p className="text-sm text-[var(--color-ink-soft)]">Cargando avance…</p>
       ) : (
-        AREAS.map((area) => {
-          const areaCredits = areaCreditsCompleted(area, completed)
-          return (
-            <div key={area.key} className="pixel-panel bg-white px-5 py-4">
-              <div className="flex items-baseline justify-between mb-1">
-                <h3 className="font-[var(--font-display)] font-semibold text-sm text-[var(--color-ink)]">
-                  {area.name.toUpperCase()}
-                </h3>
-                <span className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)]">
-                  {areaCredits} / {area.minCredits} cr mín.
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-[var(--color-cream-soft)] mb-3 overflow-hidden">
-                <div
-                  className="h-full bg-[var(--color-trabajo)]"
-                  style={{ width: `${Math.min(100, (areaCredits / area.minCredits) * 100)}%` }}
-                />
-              </div>
-              <ul className="space-y-1.5">
-                {area.subjects.map((subject) => (
-                  <SubjectRow
-                    key={subject.key}
-                    subject={subject}
-                    completed={completed}
-                    unlocked={isUnlocked(subject, completed)}
-                    onToggle={toggleSubject}
-                  />
-                ))}
-              </ul>
-            </div>
-          )
-        })
+        groups.map((group) => (
+          <GroupCard key={group.key} group={group} completed={completed} onToggle={toggleSubject} />
+        ))
       )}
     </div>
   )

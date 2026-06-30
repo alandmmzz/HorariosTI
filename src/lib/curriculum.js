@@ -123,6 +123,34 @@ export const ALL_SUBJECTS = AREAS.flatMap((a) => a.subjects)
 export const SUBJECT_BY_KEY = Object.fromEntries(ALL_SUBJECTS.map((s) => [s.key, s]))
 export const TOTAL_SUBJECTS = ALL_SUBJECTS.length
 
+// Agrupación alternativa "por semestre", como en la malla original que
+// pasaste al principio. Las materias que no estaban en esa malla (talleres
+// y optativas agregados después con el plan oficial) van todas juntas en
+// un pool de "Electivas (5to/6to)", igual que antes.
+const SEMESTER_KEYS = [
+  { semester: 1, keys: ['prinprog', 'mdl1', 'mat', 'ingtec1', 'arqcomp'] },
+  { semester: 2, keys: ['bd1', 'eda', 'ingtec2', 'mdl2', 'so'] },
+  { semester: 3, keys: ['bd2', 'coe', 'cont', 'redes', 'progavan'] },
+  { semester: 4, keys: ['adminf', 'ingsoft', 'pye', 'progapli', 'rpyl'] },
+]
+
+const ASSIGNED_KEYS = new Set(SEMESTER_KEYS.flatMap((s) => s.keys))
+
+export const SEMESTER_VIEW = [
+  ...SEMESTER_KEYS.map((s) => ({
+    key: `sem-${s.semester}`,
+    label: `${s.semester}.º Semestre`,
+    minCredits: null,
+    subjects: s.keys.map((k) => SUBJECT_BY_KEY[k]).filter(Boolean),
+  })),
+  {
+    key: 'electivas',
+    label: 'Electivas (5to / 6to)',
+    minCredits: null,
+    subjects: ALL_SUBJECTS.filter((s) => !ASSIGNED_KEYS.has(s.key)),
+  },
+]
+
 export function isUnlocked(subject, completedSet) {
   return subject.requires.every((req) => completedSet.has(req))
 }
