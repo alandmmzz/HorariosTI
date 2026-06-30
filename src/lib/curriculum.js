@@ -1,85 +1,142 @@
-// Plan de estudios - Tecnólogo en Informática (Fing - UdelaR)
-// Las materias de 5to y 6to semestre incluyen talleres optativos:
-// no hace falta cursarlos todos, tildá solo los que efectivamente curses.
+// Plan 2007 - Tecnólogo en Informática (Fing - UdelaR)
+// Fuente: plan oficial por créditos. Créditos mínimos totales: 252.
+// Nota: el plan distingue exigir "Curso" (ganaste el derecho a examen) o
+// "Examen" (la exoneraste/aprobaste) como previa de otra materia. Como esta
+// app solo trackea "completada sí/no", tratamos cualquiera de las dos como
+// "tenés que haberla marcado como completada".
 
-export const CURRICULUM = [
+export const TOTAL_DEGREE_CREDITS = 252
+
+export const AREAS = [
   {
-    semester: 1,
-    optional: false,
+    key: 'matematica',
+    name: 'Matemática',
+    minCredits: 26,
     subjects: [
-      { key: 'arqcomp', name: 'Arquitectura del Computador', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/arqcomp/middlearq.html' },
-      { key: 'ingtec1', name: 'Inglés Técnico 1', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/ingtec1/middleit1.htm' },
-      { key: 'mat', name: 'Matemática', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/mat/middlemat.htm' },
-      { key: 'mdl1', name: 'Matemática Discreta y Lógica 1', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/mdl1/middlemdl1.htm' },
-      { key: 'prinprog', name: 'Principios de Programación', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/prinprog/middlepp.htm' },
+      { key: 'mat', name: 'Matemática', credits: 0, requires: [] },
+      { key: 'mdl1', name: 'Matemática Discreta y Lógica 1', credits: 12, requires: [] },
+      { key: 'mdl2', name: 'Matemática Discreta y Lógica 2', credits: 6, requires: ['mdl1'] },
+      { key: 'pye', name: 'Probabilidad y Estadística', credits: 8, requires: ['mdl1', 'mdl2'] },
     ],
   },
   {
-    semester: 2,
-    optional: false,
+    key: 'programacion',
+    name: 'Programación',
+    minCredits: 44,
     subjects: [
-      { key: 'bd1', name: 'Bases de Datos 1', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/bd1/middlebd1.html' },
-      { key: 'eda', name: 'Estructuras de Datos y Algoritmos', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/eda/middleeda.html' },
-      { key: 'ingtec2', name: 'Inglés Técnico 2', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/ingtec2/middleit2.htm' },
-      { key: 'mdl2', name: 'Matemática Discreta y Lógica 2', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/mdl2/middlemdl2.htm' },
-      { key: 'so', name: 'Sistemas Operativos', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/so/middlessoo.html' },
+      { key: 'prinprog', name: 'Principios de Programación', credits: 0, requires: [] },
+      { key: 'eda', name: 'Estructuras de Datos y Algoritmos', credits: 16, requires: ['prinprog', 'mdl1'] },
+      { key: 'progavan', name: 'Programación Avanzada', credits: 12, requires: ['eda'] },
+      { key: 'progapli', name: 'Programación de Aplicaciones', credits: 16, requires: ['eda', 'bd1', 'progavan', 'bd2'] },
+      { key: 'butia', name: 'Butiá: Robótica Educativa', credits: 8, requires: ['prinprog'] },
+      { key: 'comprobotica', name: 'Competencias Robóticas - IEEE SEK', credits: 4, requires: ['prinprog'] },
+      { key: 'tallerrobotica', name: 'Taller de Robótica Educativa', credits: 6, requires: ['eda'] },
+      { key: 'frobotica', name: 'Fundamentos de la Robótica Autónoma', credits: 7, requires: ['arqcomp', 'mdl1', 'mdl2', 'eda', 'progavan'] },
+      { key: 'desgx', name: 'Desarrollo de Aplicaciones con GeneXus', credits: 12, requires: ['bd1', 'bd2', 'progavan'] },
+      { key: 'gxav', name: 'Taller de GeneXus Avanzado', credits: 12, requires: ['desgx'] },
+      { key: 'desphp', name: 'Desarrollo de Sitios Web con PHP', credits: 4, requires: ['bd1', 'bd2', 'progavan', 'redes'] },
+      { key: 'desapphp', name: 'Taller de Desarrollo de Aplicaciones Web con PHP', credits: 12, requires: ['bd1', 'bd2', 'progapli'] },
+      { key: 'xml', name: 'Introducción a XML y Estándares Asociados', credits: 4, requires: ['bd2', 'progavan'] },
+      { key: 'introjuegos', name: 'Introducción al Desarrollo de Juegos', credits: 12, requires: ['progavan', 'bd2', 'mdl2'] },
+      { key: 'vj2d', name: 'Taller de Diseño y Programación de Videojuegos 2D', credits: 4, requires: ['progavan', 'bd2', 'mdl2'] },
+      { key: 'tam', name: 'Taller de Aplicaciones para Dispositivos Móviles', credits: 4, requires: ['bd1', 'progavan'] },
+      { key: 'ria', name: 'Taller de Aplicaciones de Internet Ricas', credits: 4, requires: ['progapli'] },
+      { key: 'tsig', name: 'Taller de Sistemas de Información Geográfica', credits: 12, requires: ['bd2', 'ingsoft', 'progapli'] },
+      { key: 'tsi_jee', name: 'Taller de Sistemas de Información Java EE', credits: 12, requires: ['bd1', 'bd2', 'progapli'] },
+      { key: 'tsi_net', name: 'Taller de Sistemas de Información .NET', credits: 12, requires: ['bd1', 'bd2', 'progapli'] },
     ],
   },
   {
-    semester: 3,
-    optional: false,
+    key: 'arq_so_redes',
+    name: 'Arquitectura, Sist. Operativos y Redes',
+    minCredits: 32,
     subjects: [
-      { key: 'bd2', name: 'Bases de Datos 2', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/bd2/middlebd2.html' },
-      { key: 'coe', name: 'Comunicación Oral y Escrita', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/coe/middlecoe.html' },
-      { key: 'cont', name: 'Contabilidad', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/cont/middlecont.htm' },
-      { key: 'redes', name: 'Redes de Computadoras', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/redes/middleredes.htm' },
-      { key: 'progavan', name: 'Programación Avanzada', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/progavan/middleprogavan.htm' },
+      { key: 'arqcomp', name: 'Arquitectura de Computadoras', credits: 0, requires: [] },
+      { key: 'so', name: 'Sistemas Operativos', credits: 12, requires: ['arqcomp'] },
+      { key: 'redes', name: 'Redes de Computadoras', credits: 12, requires: ['arqcomp'] },
+      { key: 'adminf', name: 'Administración de Infraestructuras', credits: 8, requires: ['so', 'redes'] },
+      { key: 'adminf2', name: 'Administración de Infraestructuras II', credits: 12, requires: ['arqcomp', 'so', 'redes', 'adminf'] },
+      { key: 'sistcontrol', name: 'Introducción a los Sistemas de Control', credits: 12, requires: ['arqcomp', 'redes', 'so', 'adminf'] },
     ],
   },
   {
-    semester: 4,
-    optional: false,
+    key: 'bd_si',
+    name: 'Bases de Datos y Sistemas de Información',
+    minCredits: 24,
     subjects: [
-      { key: 'adminf', name: 'Administración de Infraestructuras', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/adminf/middleadminf.htm' },
-      { key: 'ingsoft', name: 'Ingeniería de Software', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/ingsoft/middleingsoft.htm' },
-      { key: 'pye', name: 'Probabilidad y Estadística', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/pye/middlepye.htm' },
-      { key: 'progapli', name: 'Programación de Aplicaciones', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/progapli/middleprogapli.htm' },
-      { key: 'rpyl', name: 'Relaciones Personales y Laborales', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/rpyl/middlerpyl.htm' },
+      { key: 'bd1', name: 'Bases de Datos I', credits: 12, requires: ['prinprog'] },
+      { key: 'bd2', name: 'Bases de Datos II', credits: 12, requires: ['bd1'] },
+      { key: 'cdatos', name: 'Calidad de Datos', credits: 12, requires: ['bd2', 'progapli'] },
+      { key: 'infsalud', name: 'Informatización de Organizaciones de Salud', credits: 4, requires: ['bd1', 'bd2', 'ingsoft'] },
+      { key: 'sgc', name: 'Sistema de Gestión de Contenidos', credits: 4, requires: ['progapli', 'ria'] },
+      { key: 'tbdnsql', name: 'Taller de Bases de Datos NoSQL', credits: 4, requires: ['bd1', 'bd2'] },
     ],
   },
   {
-    semester: 5,
-    optional: true,
+    key: 'desarrollo_sw',
+    name: 'Desarrollo de Software',
+    minCredits: 12,
     subjects: [
-      { key: 'ria', name: 'Taller de Aplicaciones de Internet Ricas', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/ria/middleria.htm' },
-      { key: 'tsi_net', name: 'Taller de Sistemas de Información .NET', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/tsi_net/middletsi_net.htm' },
-      { key: 'tsig', name: 'Taller de Sistemas de Información Geográfica', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/tsig/middletsig.htm' },
-      { key: 'cdatos', name: 'Calidad de Datos', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/cdatos/middlecdatos.htm' },
-      { key: 'paslab', name: 'Pasantía Laboral', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/paslab/middlepaslab.htm' },
-      { key: 'otbutia', name: 'Butiá: Robótica Educativa', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/otbutia/otbutia.pdf' },
-      { key: 'otinfsalud', name: 'Informatización de Sistemas de Salud', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/otinfsalud/middleinfsalud.htm' },
-      { key: 'desphp', name: 'Desarrollo de Sitios Web con PHP', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/desphp/middledesphp.htm' },
-      { key: 'testing', name: 'Introducción al Testing Funcional', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/testing/middletesting.htm' },
-      { key: 'frobotica', name: 'Fundamentos de la Robótica Autónoma', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/frobotica/middlefrobotica.htm' },
-      { key: 'proyecto5', name: 'Proyecto', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/proyecto/middleproyecto.htm' },
+      { key: 'ingsoft', name: 'Ingeniería de Software', credits: 12, requires: ['bd1', 'eda', 'progavan'] },
+      { key: 'testing', name: 'Introducción al Testing Funcional', credits: 12, requires: ['ingsoft', 'progavan', 'progapli'] },
     ],
   },
   {
-    semester: 6,
-    optional: true,
+    key: 'humanas',
+    name: 'Ciencias Humanas y Sociales',
+    minCredits: 28,
     subjects: [
-      { key: 'tam', name: 'Taller de Aplicaciones Para Dispositivos Móviles', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/tam/middletam.htm' },
-      { key: 'tct', name: 'Taller de Cambio Tecnológico', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/tct/middletct.htm' },
-      { key: 'tsi_jee', name: 'Taller de Sistemas de Información Java EE', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/tsi_jee/middletsi_jee.htm' },
-      { key: 'desapphp', name: 'Desarrollo de Aplicaciones Web con PHP', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/desapphp/middledesapphp.htm' },
-      { key: 'desgx', name: 'Desarrollo de Aplicaciones Basadas en Tecnologías Genexus', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/desgx/middledesgx.htm' },
-      { key: 'vj2d', name: 'Taller de Diseño y Programación de Video Juegos 2D', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/vj2d/middlevj2d.html' },
-      { key: 'xml', name: 'Introducción a XML y Estándares Asociados', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/xml/middlexml.htm' },
-      { key: 'tbdnsql', name: 'Taller de Bases de Datos No SQL', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/tbdnsql/middletbdnsql.htm' },
-      { key: 'adi2', name: 'Administración de Infraestructuras II', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/adi2/adi2.pdf' },
-      { key: 'proyecto6', name: 'Proyecto', url: 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/proyecto/middleproyecto.htm' },
+      { key: 'ingtec1', name: 'Inglés Técnico 1 (Act. Compl. 1)', credits: 8, requires: [] },
+      { key: 'ingtec2', name: 'Inglés Conversacional (Act. Compl. 2)', credits: 4, requires: [] },
+      { key: 'coe', name: 'Comunicación Oral y Escrita (Act. Compl. 3)', credits: 4, requires: [] },
+      { key: 'cont', name: 'Contabilidad (Act. Compl. 4)', credits: 8, requires: [] },
+      { key: 'rpyl', name: 'Relaciones Personales y Laborales', credits: 4, requires: [] },
+      { key: 'economia', name: 'Economía', credits: 7, requires: [] },
+      { key: 'gestinnovacion', name: 'Taller de Gestión de la Innovación en Tecnología', credits: 6, requires: [] },
+      { key: 'conceptoscontables', name: 'Conceptos Contables (TAC)', credits: 10, requires: [] },
+      { key: 'empresa', name: 'Aprender y Gestionar una Empresa', credits: 4, requires: ['cont', 'rpyl', 'coe'] },
+      { key: 'tct', name: 'Taller de Cambio Tecnológico en Instituciones Financieras', credits: 12, requires: ['coe', 'cont', 'rpyl'] },
+    ],
+  },
+  {
+    key: 'proyecto_pasantia',
+    name: 'Proyecto y Pasantía Laboral',
+    minCredits: 30,
+    subjects: [
+      {
+        key: 'paslab',
+        name: 'Pasantía Laboral',
+        credits: 10,
+        requires: ['bd1', 'prinprog', 'bd2', 'arqcomp', 'progavan', 'redes', 'so', 'eda'],
+      },
+      {
+        key: 'proyecto',
+        name: 'Proyecto',
+        credits: 20,
+        requires: ['bd1', 'arqcomp', 'ingsoft', 'bd2', 'adminf', 'so', 'redes', 'progavan', 'progapli', 'mat', 'mdl1', 'prinprog', 'mdl2', 'eda'],
+      },
     ],
   },
 ]
 
-export const TOTAL_SUBJECTS = CURRICULUM.reduce((sum, s) => sum + s.subjects.length, 0)
+export const ALL_SUBJECTS = AREAS.flatMap((a) => a.subjects)
+export const SUBJECT_BY_KEY = Object.fromEntries(ALL_SUBJECTS.map((s) => [s.key, s]))
+export const TOTAL_SUBJECTS = ALL_SUBJECTS.length
+
+export function isUnlocked(subject, completedSet) {
+  return subject.requires.every((req) => completedSet.has(req))
+}
+
+export function missingRequirements(subject, completedSet) {
+  return subject.requires
+    .filter((req) => !completedSet.has(req))
+    .map((req) => SUBJECT_BY_KEY[req]?.name ?? req)
+}
+
+export function creditsCompleted(completedSet) {
+  return ALL_SUBJECTS.filter((s) => completedSet.has(s.key)).reduce((sum, s) => sum + s.credits, 0)
+}
+
+export function areaCreditsCompleted(area, completedSet) {
+  return area.subjects.filter((s) => completedSet.has(s.key)).reduce((sum, s) => sum + s.credits, 0)
+}

@@ -1,7 +1,15 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Lock } from 'pixelarticons/react/Lock.js'
 import { useAuth } from '../lib/AuthContext'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import { CURRICULUM, TOTAL_SUBJECTS } from '../lib/curriculum'
+import {
+  AREAS,
+  TOTAL_DEGREE_CREDITS,
+  isUnlocked,
+  missingRequirements,
+  creditsCompleted,
+  areaCreditsCompleted,
+} from '../lib/curriculum'
 
 const LOCAL_KEY = 'horarios-ti-completed-subjects'
 
@@ -15,6 +23,47 @@ function loadLocal() {
 
 function saveLocal(set) {
   localStorage.setItem(LOCAL_KEY, JSON.stringify([...set]))
+}
+
+function SubjectRow({ subject, completed, unlocked, onToggle }) {
+  const checked = completed.has(subject.key)
+  const hint = unlocked ? undefined : `Necesitás: ${missingRequirements(subject, completed).join(', ')}`
+
+  return (
+    <li className="flex items-center gap-2">
+      <button
+        type="button"
+        disabled={!unlocked}
+        onClick={() => onToggle(subject.key)}
+        title={hint}
+        className="w-5 h-5 shrink-0 border-2 flex items-center justify-center disabled:cursor-not-allowed"
+        style={{
+          borderColor: unlocked ? 'var(--color-ink)' : 'var(--color-line)',
+          background: checked ? 'var(--color-deporte)' : unlocked ? 'white' : 'var(--color-cream-soft)',
+        }}
+        aria-pressed={checked}
+        aria-label={`Marcar ${subject.name} como completada`}
+      >
+        {checked && <span className="text-white text-xs leading-none">✓</span>}
+        {!unlocked && !checked && <Lock width={11} height={11} className="text-[var(--color-ink-soft)]" />}
+      </button>
+
+      <span
+        className="text-sm"
+        title={hint}
+        style={{
+          color: !unlocked ? 'var(--color-ink-soft)' : checked ? 'var(--color-ink-soft)' : 'var(--color-ink)',
+          textDecoration: checked ? 'line-through' : 'none',
+        }}
+      >
+        {subject.name}
+      </span>
+
+      <span className="ml-auto font-[var(--font-mono)] text-[10px] text-[var(--color-ink-soft)] shrink-0">
+        {subject.credits} cr
+      </span>
+    </li>
+  )
 }
 
 export default function CareerProgress() {
@@ -58,7 +107,8 @@ export default function CareerProgress() {
     }
   }
 
-  const percent = Math.round((completed.size / TOTAL_SUBJECTS) * 100)
+  const totalCredits = creditsCompleted(completed)
+  const percent = Math.min(100, Math.round((totalCredits / TOTAL_DEGREE_CREDITS) * 100))
 
   return (
     <div className="space-y-5">
@@ -68,16 +118,27 @@ export default function CareerProgress() {
             AVANCE DE LA CARRERA
           </h2>
           <span className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)]">
-            {completed.size} / {TOTAL_SUBJECTS} materias
+            {totalCredits} / {TOTAL_DEGREE_CREDITS} créditos
           </span>
         </div>
         <div className="h-4 w-full bg-[var(--color-cream-soft)] border border-[var(--color-line)] overflow-hidden">
-          <div
-            className="h-full bg-[var(--color-deporte)] transition-all"
-            style={{ width: `${percent}%` }}
-          />
+          <div className="h-full bg-[var(--color-deporte)] transition-all" style={{ width: `${percent}%` }} />
         </div>
         <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mt-1">{percent}%</p>
+        <div className="flex flex-wrap items-center gap-4 mt-2 text-[11px] text-[var(--color-ink-soft)]">
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 inline-block border-2 border-[var(--color-line)] bg-[var(--color-cream-soft)]" />
+            Bloqueada
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 inline-block border-2 border-[var(--color-ink)] bg-white" />
+            Disponible
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 inline-block border-2 border-[var(--color-ink)] bg-[var(--color-deporte)]" />
+            Completada
+          </span>
+        </div>
         {!user && (
           <p className="text-xs text-[var(--color-ink-soft)] mt-2">
             Estás viendo esto sin conectar tu cuenta: se guarda solo en este navegador.
@@ -88,48 +149,34 @@ export default function CareerProgress() {
       {loading ? (
         <p className="text-sm text-[var(--color-ink-soft)]">Cargando avance…</p>
       ) : (
-        CURRICULUM.map((sem) => {
-          const semCompleted = sem.subjects.filter((s) => completed.has(s.key)).length
+        AREAS.map((area) => {
+          const areaCredits = areaCreditsCompleted(area, completed)
           return (
-            <div key={sem.semester} className="pixel-panel bg-white px-5 py-4">
-              <div className="flex items-baseline justify-between mb-3">
+            <div key={area.key} className="pixel-panel bg-white px-5 py-4">
+              <div className="flex items-baseline justify-between mb-1">
                 <h3 className="font-[var(--font-display)] font-semibold text-sm text-[var(--color-ink)]">
-                  {sem.semester}.º SEMESTRE {sem.optional && <span className="text-[var(--color-ink-soft)] text-xs">(optativas)</span>}
+                  {area.name.toUpperCase()}
                 </h3>
                 <span className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)]">
-                  {semCompleted}/{sem.subjects.length}
+                  {areaCredits} / {area.minCredits} cr mín.
                 </span>
               </div>
+              <div className="h-1.5 w-full bg-[var(--color-cream-soft)] mb-3 overflow-hidden">
+                <div
+                  className="h-full bg-[var(--color-trabajo)]"
+                  style={{ width: `${Math.min(100, (areaCredits / area.minCredits) * 100)}%` }}
+                />
+              </div>
               <ul className="space-y-1.5">
-                {sem.subjects.map((subject) => {
-                  const checked = completed.has(subject.key)
-                  return (
-                    <li key={subject.key} className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => toggleSubject(subject.key)}
-                        className="w-5 h-5 shrink-0 border-2 border-[var(--color-ink)] flex items-center justify-center"
-                        style={{ background: checked ? 'var(--color-deporte)' : 'white' }}
-                        aria-pressed={checked}
-                        aria-label={`Marcar ${subject.name} como completada`}
-                      >
-                        {checked && <span className="text-white text-xs leading-none">✓</span>}
-                      </button>
-                      <a
-                        href={subject.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm hover:underline"
-                        style={{
-                          color: checked ? 'var(--color-ink-soft)' : 'var(--color-ink)',
-                          textDecoration: checked ? 'line-through' : 'none',
-                        }}
-                      >
-                        {subject.name}
-                      </a>
-                    </li>
-                  )
-                })}
+                {area.subjects.map((subject) => (
+                  <SubjectRow
+                    key={subject.key}
+                    subject={subject}
+                    completed={completed}
+                    unlocked={isUnlocked(subject, completed)}
+                    onToggle={toggleSubject}
+                  />
+                ))}
               </ul>
             </div>
           )
