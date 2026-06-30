@@ -7,6 +7,7 @@ import WeekGrid from './components/WeekGrid'
 import WeeklyLoadBar from './components/WeeklyLoadBar'
 import EventModal from './components/EventModal'
 import CareerProgress from './components/CareerProgress'
+import BannerSlot from './components/BannerSlot'
 
 const LOCAL_KEY = 'horarios-ti-events'
 const DISMISS_KEY = 'horarios-ti-login-hint-dismissed'
@@ -113,6 +114,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto">
+      <BannerSlot />
+
       <div className="mb-6">
         <p className="font-[var(--font-mono)] text-xs tracking-widest text-[var(--color-ink-soft)] mb-1">
           TECNÓLOGO EN INFORMÁTICA · BUCEO
