@@ -110,7 +110,7 @@ export default function App() {
           </label>
           <button
             onClick={() => setModalState({ initial: null })}
-            className="px-4 py-2 rounded-lg text-sm bg-[var(--color-ink)] text-white font-medium hover:opacity-90"
+            className="px-4 py-2 rounded-none text-sm bg-[var(--color-ink)] text-white font-medium border-2 border-[var(--color-ink)] shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
           >
             + Nueva actividad
           </button>
@@ -118,7 +118,7 @@ export default function App() {
       </header>
 
       {!isSupabaseConfigured && (
-        <div className="mb-5 px-4 py-3 rounded-xl bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm">
+        <div className="mb-5 px-4 py-3 rounded-none bg-[var(--color-blanda-soft)] border border-[var(--color-blanda)] text-sm">
           Todavía no conectaste Supabase: por ahora tus horarios se guardan solo en este navegador.
           Configurá las variables <code className="font-[var(--font-mono)]">VITE_SUPABASE_URL</code> y{' '}
           <code className="font-[var(--font-mono)]">VITE_SUPABASE_ANON_KEY</code> para guardarlos en la nube.
@@ -126,7 +126,7 @@ export default function App() {
       )}
 
       {errorMsg && (
-        <div className="mb-5 px-4 py-3 rounded-xl bg-[var(--color-lab-soft)] border border-[var(--color-lab)] text-sm">
+        <div className="mb-5 px-4 py-3 rounded-none bg-[var(--color-lab-soft)] border border-[var(--color-lab)] text-sm">
           {errorMsg}
         </div>
       )}

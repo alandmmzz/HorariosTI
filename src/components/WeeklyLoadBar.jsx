@@ -9,7 +9,7 @@ export default function WeeklyLoadBar({ events }) {
   const grandTotal = totals.reduce((s, t) => s + t.hours, 0) || 1
 
   return (
-    <div className="bg-white border border-[var(--color-line)] rounded-2xl px-5 py-4">
+    <div className="bg-white border-2 border-[var(--color-ink)] rounded-none px-5 py-4">
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="font-[var(--font-display)] font-semibold text-sm tracking-wide text-[var(--color-ink)]">
           CARGA DE LA SEMANA
@@ -19,7 +19,7 @@ export default function WeeklyLoadBar({ events }) {
         </span>
       </div>
 
-      <div className="flex h-3 w-full rounded-full overflow-hidden bg-[var(--color-cream-soft)]">
+      <div className="flex h-3 w-full rounded-none overflow-hidden bg-[var(--color-cream-soft)]">
         {totals.map(({ key, hours }) =>
           hours > 0 ? (
             <div
@@ -38,7 +38,7 @@ export default function WeeklyLoadBar({ events }) {
         {totals.map(({ key, hours }) => (
           <div key={key} className="flex items-center gap-1.5 text-xs text-[var(--color-ink-soft)]">
             <span
-              className="w-2.5 h-2.5 rounded-sm inline-block"
+              className="w-2.5 h-2.5 rounded-none inline-block"
               style={{ background: CATEGORIES[key].color }}
             />
             <span>{CATEGORIES[key].label}</span>

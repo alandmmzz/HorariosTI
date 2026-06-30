@@ -9,7 +9,7 @@ export default function EventBlock({ event, onClick }) {
   return (
     <button
       onClick={() => onClick(event)}
-      className="absolute left-1 right-1 text-left rounded-lg px-2.5 py-1.5 overflow-hidden border transition-shadow hover:shadow-md focus-visible:shadow-md"
+      className="absolute left-1 right-1 text-left rounded-none px-2.5 py-1.5 overflow-hidden border-2 transition-all hover:shadow-[2px_2px_0_var(--color-ink)] focus-visible:shadow-[2px_2px_0_var(--color-ink)]"
       style={{
         top: `${top}px`,
         height: `${Math.max(height, 30)}px`,

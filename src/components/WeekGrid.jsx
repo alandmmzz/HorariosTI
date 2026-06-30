@@ -7,7 +7,7 @@ export default function WeekGrid({ events, visibleDays, onEventClick, onSlotClic
   for (let h = GRID_START_HOUR; h <= GRID_END_HOUR; h++) hours.push(h)
 
   return (
-    <div className="bg-white border border-[var(--color-line)] rounded-2xl overflow-hidden">
+    <div className="bg-white border-2 border-[var(--color-ink)] rounded-none overflow-hidden">
       <div
         className="grid"
         style={{ gridTemplateColumns: `72px repeat(${visibleDays.length}, 1fr)` }}

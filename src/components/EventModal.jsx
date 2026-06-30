@@ -47,7 +47,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleSubmit}
-        className="bg-[var(--color-cream)] border border-[var(--color-line)] rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
+        className="bg-[var(--color-cream)] border-2 border-[var(--color-ink)] rounded-none w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
       >
         <h2 className="font-[var(--font-display)] font-semibold text-lg mb-4">
           {isEditing ? 'Editar' : 'Nueva'} actividad
@@ -61,7 +61,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
           value={form.title}
           onChange={(e) => update('title', e.target.value)}
           placeholder="Ej: Base de Datos 1, Gimnasio, Trabajo"
-          className="w-full mb-3 px-3 py-2 rounded-lg border border-[var(--color-line)] bg-white text-sm focus-visible:outline-2"
+          className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm focus-visible:outline-2"
         />
 
         <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
@@ -73,7 +73,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
               type="button"
               key={key}
               onClick={() => update('type', key)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs text-left transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-none border text-xs text-left transition-colors"
               style={{
                 borderColor: CATEGORIES[key].color,
                 background: form.type === key ? CATEGORIES[key].soft : 'white',
@@ -91,7 +91,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
         <select
           value={form.day_of_week}
           onChange={(e) => update('day_of_week', e.target.value)}
-          className="w-full mb-3 px-3 py-2 rounded-lg border border-[var(--color-line)] bg-white text-sm"
+          className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm"
         >
           {DAYS.map((d) => (
             <option key={d.key} value={d.key}>
@@ -109,7 +109,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
               type="time"
               value={form.start_time}
               onChange={(e) => update('start_time', e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-white text-sm font-[var(--font-mono)]"
+              className="w-full px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm font-[var(--font-mono)]"
             />
           </div>
           <div>
@@ -120,7 +120,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
               type="time"
               value={form.end_time}
               onChange={(e) => update('end_time', e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-white text-sm font-[var(--font-mono)]"
+              className="w-full px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm font-[var(--font-mono)]"
             />
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
               value={form.location}
               onChange={(e) => update('location', e.target.value)}
               placeholder="Ej: Aula 304"
-              className="w-full mb-3 px-3 py-2 rounded-lg border border-[var(--color-line)] bg-white text-sm"
+              className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm"
             />
 
             <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
@@ -144,7 +144,7 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
               value={form.professor}
               onChange={(e) => update('professor', e.target.value)}
               placeholder="Ej: Ing. Pérez"
-              className="w-full mb-3 px-3 py-2 rounded-lg border border-[var(--color-line)] bg-white text-sm"
+              className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm"
             />
           </>
         )}
@@ -167,13 +167,13 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm border border-[var(--color-line)] bg-white"
+              className="px-4 py-2 rounded-none text-sm border border-[var(--color-line)] bg-white"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg text-sm bg-[var(--color-ink)] text-white font-medium"
+              className="px-4 py-2 rounded-none text-sm bg-[var(--color-ink)] text-white font-medium border-2 border-[var(--color-ink)] shadow-[3px_3px_0_var(--color-clase)] hover:shadow-[1px_1px_0_var(--color-clase)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
               Guardar
             </button>
