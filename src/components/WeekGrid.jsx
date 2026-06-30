@@ -46,13 +46,15 @@ export default function WeekGrid({ events, visibleDays, onEventClick, onSlotClic
             key={day.key}
             className="relative border-l border-[var(--color-line)]"
             style={{ height: hours.length * HOUR_HEIGHT }}
-            onDoubleClick={() => onSlotClick(day.key)}
           >
             {hours.map((h) => (
-              <div
+              <button
                 key={h}
-                className="absolute left-0 right-0 border-t border-[var(--color-cream-soft)]"
-                style={{ top: (h - GRID_START_HOUR) * HOUR_HEIGHT }}
+                type="button"
+                title="Doble clic para agregar una actividad"
+                onDoubleClick={() => onSlotClick(day.key, h)}
+                className="absolute left-0 right-0 border-t border-[var(--color-cream-soft)] cursor-pointer hover:bg-[var(--color-cream-soft)] transition-colors"
+                style={{ top: (h - GRID_START_HOUR) * HOUR_HEIGHT, height: HOUR_HEIGHT }}
               />
             ))}
             {events

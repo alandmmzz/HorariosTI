@@ -143,14 +143,18 @@ export default function App() {
           events={events}
           visibleDays={visibleDays}
           onEventClick={(event) => setModalState({ initial: event })}
-          onSlotClick={(dayKey) =>
-            setModalState({ initial: { day_of_week: dayKey, start_time: '08:00', end_time: '09:00', type: 'clase', title: '', location: '', professor: '' } })
-          }
+          onSlotClick={(dayKey, hour) => {
+            const start = `${String(hour).padStart(2, '0')}:00`
+            const end = `${String(hour + 1).padStart(2, '0')}:00`
+            setModalState({
+              initial: { day_of_week: dayKey, start_time: start, end_time: end, type: 'clase', icon: 'book-open', title: '', location: '', professor: '' },
+            })
+          }}
         />
       )}
 
       <p className="text-xs text-[var(--color-ink-soft)] mt-4">
-        Tip: doble clic en un casillero vacío de la grilla para crear una actividad en ese día.
+        Tip: doble clic en cualquier casillero vacío para crear una actividad en ese día y horario.
       </p>
 
       {modalState && (

@@ -3,31 +3,31 @@ export const CATEGORIES = {
     label: 'Clase',
     color: 'var(--color-clase)',
     soft: 'var(--color-clase-soft)',
-    icon: '📘',
+    defaultIcon: 'book-open',
   },
   laboratorio: {
     label: 'Laboratorio / Práctica',
     color: 'var(--color-lab)',
     soft: 'var(--color-lab-soft)',
-    icon: '💾',
+    defaultIcon: 'terminal',
   },
   blanda: {
     label: 'Habilidades blandas / Idioma',
     color: 'var(--color-blanda)',
     soft: 'var(--color-blanda-soft)',
-    icon: '💬',
+    defaultIcon: 'comment-text',
   },
   trabajo: {
     label: 'Trabajo',
     color: 'var(--color-trabajo)',
     soft: 'var(--color-trabajo-soft)',
-    icon: '💼',
+    defaultIcon: 'briefcase',
   },
   deporte: {
     label: 'Deporte / Personal',
     color: 'var(--color-deporte)',
     soft: 'var(--color-deporte-soft)',
-    icon: '🏊',
+    defaultIcon: 'trophy',
   },
 }
 

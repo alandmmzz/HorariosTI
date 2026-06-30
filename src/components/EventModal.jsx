@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { CATEGORIES, CATEGORY_ORDER, DAYS } from '../lib/categories'
+import { ICONS, ICON_ORDER, getIcon } from '../lib/icons'
 
 const EMPTY = {
   title: '',
   type: 'clase',
+  icon: CATEGORIES.clase.defaultIcon,
   day_of_week: 'mon',
   start_time: '08:00',
   end_time: '09:00',
@@ -16,12 +18,17 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    setForm(initial ?? EMPTY)
+    const next = initial ?? EMPTY
+    setForm(next.icon ? next : { ...next, icon: CATEGORIES[next.type]?.defaultIcon ?? 'book-open' })
     setError('')
   }, [initial])
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }))
+  }
+
+  function updateType(key) {
+    setForm((f) => ({ ...f, type: key, icon: CATEGORIES[key].defaultIcon }))
   }
 
   function handleSubmit(e) {
@@ -68,21 +75,49 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
           Tipo
         </label>
         <div className="grid grid-cols-2 gap-2 mb-3">
-          {CATEGORY_ORDER.map((key) => (
-            <button
-              type="button"
-              key={key}
-              onClick={() => update('type', key)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-none border text-xs text-left transition-colors"
-              style={{
-                borderColor: CATEGORIES[key].color,
-                background: form.type === key ? CATEGORIES[key].soft : 'white',
-              }}
-            >
-              <span>{CATEGORIES[key].icon}</span>
-              <span className="truncate">{CATEGORIES[key].label}</span>
-            </button>
-          ))}
+          {CATEGORY_ORDER.map((key) => {
+            const CatIcon = getIcon(CATEGORIES[key].defaultIcon)
+            return (
+              <button
+                type="button"
+                key={key}
+                onClick={() => updateType(key)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-none border text-xs text-left transition-colors"
+                style={{
+                  borderColor: CATEGORIES[key].color,
+                  background: form.type === key ? CATEGORIES[key].soft : 'white',
+                }}
+              >
+                <CatIcon width={14} height={14} className="shrink-0" />
+                <span className="truncate">{CATEGORIES[key].label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
+          Icono
+        </label>
+        <div className="grid grid-cols-8 gap-1.5 mb-4 p-2 bg-white border border-[var(--color-line)]">
+          {ICON_ORDER.map((key) => {
+            const { Icon, label } = ICONS[key]
+            const selected = form.icon === key
+            return (
+              <button
+                type="button"
+                key={key}
+                title={label}
+                onClick={() => update('icon', key)}
+                className="aspect-square flex items-center justify-center p-1.5 border-2 transition-colors"
+                style={{
+                  borderColor: selected ? 'var(--color-ink)' : 'transparent',
+                  background: selected ? 'var(--color-clase-soft)' : 'transparent',
+                }}
+              >
+                <Icon width={16} height={16} />
+              </button>
+            )
+          })}
         </div>
 
         <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
