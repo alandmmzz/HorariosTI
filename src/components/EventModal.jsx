@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { CATEGORIES, CATEGORY_ORDER, DAYS } from '../lib/categories'
 import { ICONS, ICON_ORDER, getIcon } from '../lib/icons'
-import { COLOR_PALETTE, COLOR_ORDER, getColor } from '../lib/colors'
+import { COLOR_PALETTE, COLOR_ORDER } from '../lib/colors'
 
 const EMPTY = {
   title: '',
   type: 'clase',
   icon: CATEGORIES.clase.defaultIcon,
   color: CATEGORIES.clase.defaultColor,
-  day_of_week: 'mon',
+  days: ['mon'],
   start_time: '08:00',
   end_time: '09:00',
   location: '',
@@ -16,19 +16,26 @@ const EMPTY = {
 }
 
 export default function EventModal({ initial, onClose, onSave, onDelete }) {
-  const [form, setForm] = useState(initial ?? EMPTY)
+  const [form, setForm] = useState(EMPTY)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const next = initial ?? EMPTY
-    const fallbackCat = CATEGORIES[next.type] ?? CATEGORIES.clase
+    if (!initial) {
+      setForm(EMPTY)
+      setError('')
+      return
+    }
+    const fallbackCat = CATEGORIES[initial.type] ?? CATEGORIES.clase
     setForm({
-      ...next,
-      icon: next.icon ?? fallbackCat.defaultIcon,
-      color: next.color ?? fallbackCat.defaultColor,
+      ...initial,
+      icon: initial.icon ?? fallbackCat.defaultIcon,
+      color: initial.color ?? fallbackCat.defaultColor,
+      days: initial.days ?? [initial.day_of_week],
     })
     setError('')
   }, [initial])
+
+  const isEditing = Boolean(form.id)
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -38,10 +45,27 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
     setForm((f) => ({ ...f, type: key, icon: CATEGORIES[key].defaultIcon, color: CATEGORIES[key].defaultColor }))
   }
 
+  function toggleDay(key) {
+    if (isEditing) {
+      // Editando una actividad puntual: el día es único.
+      setForm((f) => ({ ...f, days: [key] }))
+      return
+    }
+    setForm((f) => {
+      const has = f.days.includes(key)
+      const days = has ? f.days.filter((d) => d !== key) : [...f.days, key]
+      return { ...f, days }
+    })
+  }
+
   function handleSubmit(e) {
     e.preventDefault()
     if (!form.title.trim()) {
       setError('Ponele un nombre a la materia o actividad.')
+      return
+    }
+    if (form.days.length === 0) {
+      setError('Elegí al menos un día.')
       return
     }
     if (form.end_time <= form.start_time) {
@@ -50,8 +74,6 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
     }
     onSave(form)
   }
-
-  const isEditing = Boolean(form.id)
 
   return (
     <div
@@ -152,19 +174,34 @@ export default function EventModal({ initial, onClose, onSave, onDelete }) {
         </div>
 
         <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1">
-          Día
+          {isEditing ? 'Día' : 'Días (podés elegir varios para repetirla)'}
         </label>
-        <select
-          value={form.day_of_week}
-          onChange={(e) => update('day_of_week', e.target.value)}
-          className="w-full mb-3 px-3 py-2 rounded-none border border-[var(--color-line)] bg-white text-sm"
-        >
-          {DAYS.map((d) => (
-            <option key={d.key} value={d.key}>
-              {d.label}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-wrap gap-1.5 mb-1">
+          {DAYS.map((d) => {
+            const selected = form.days.includes(d.key)
+            return (
+              <button
+                type="button"
+                key={d.key}
+                onClick={() => toggleDay(d.key)}
+                className="px-2.5 py-1.5 text-xs font-medium border-2 transition-colors"
+                style={{
+                  borderColor: selected ? 'var(--color-ink)' : 'var(--color-line)',
+                  background: selected ? 'var(--color-ink)' : 'white',
+                  color: selected ? 'white' : 'var(--color-ink)',
+                }}
+              >
+                {d.label}
+              </button>
+            )
+          })}
+        </div>
+        {!isEditing && form.days.length > 1 && (
+          <p className="text-[11px] text-[var(--color-ink-soft)] mb-3">
+            Se va a crear una actividad para cada día elegido ({form.days.length}).
+          </p>
+        )}
+        <div className="mb-3" />
 
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div>

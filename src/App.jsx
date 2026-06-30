@@ -53,21 +53,28 @@ export default function App() {
   }, [fetchEvents])
 
   async function handleSave(form) {
+    const { days, day_of_week, ...rest } = form
+
     if (isSupabaseConfigured) {
       if (form.id) {
-        const { error } = await supabase.from('events').update(form).eq('id', form.id)
+        const { error } = await supabase
+          .from('events')
+          .update({ ...rest, day_of_week: days[0] })
+          .eq('id', form.id)
         if (error) return setErrorMsg(error.message)
       } else {
-        const { error } = await supabase.from('events').insert(form)
+        const rows = days.map((day) => ({ ...rest, day_of_week: day }))
+        const { error } = await supabase.from('events').insert(rows)
         if (error) return setErrorMsg(error.message)
       }
       await fetchEvents()
     } else {
       let next
       if (form.id) {
-        next = events.map((e) => (e.id === form.id ? form : e))
+        next = events.map((e) => (e.id === form.id ? { ...rest, id: form.id, day_of_week: days[0] } : e))
       } else {
-        next = [...events, { ...form, id: crypto.randomUUID() }]
+        const newRows = days.map((day) => ({ ...rest, day_of_week: day, id: crypto.randomUUID() }))
+        next = [...events, ...newRows]
       }
       setEvents(next)
       saveLocal(next)
@@ -147,7 +154,7 @@ export default function App() {
             const start = `${String(hour).padStart(2, '0')}:00`
             const end = `${String(hour + 1).padStart(2, '0')}:00`
             setModalState({
-              initial: { day_of_week: dayKey, start_time: start, end_time: end, type: 'clase', icon: 'book-open', color: 'clase', title: '', location: '', professor: '' },
+              initial: { days: [dayKey], start_time: start, end_time: end, type: 'clase', icon: 'book-open', color: 'clase', title: '', location: '', professor: '' },
             })
           }}
         />
